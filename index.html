@@ -13,13 +13,8 @@
     <title>UPC - App Prototipo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --iphone-width: 375px;
-            --iphone-height: 812px;
-        }
-
         body {
-            background-color: #1a1a1a;
+            background-color: #fff;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -33,65 +28,38 @@
             height: 100%;
         }
 
-        .iphone-frame {
-            width: var(--iphone-width);
-            height: var(--iphone-height);
-            background: #fff;
-            border-radius: 50px;
+        /* Contenedor principal a pantalla completa sin marcos */
+        .app-container {
+            width: 100vw;
+            height: 100vh;
             position: relative;
             overflow: hidden;
-            border: 12px solid #222;
-            box-shadow: 0 0 0 4px #333, 0 30px 60px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
+            background: #fff;
         }
 
-        /* Ajuste para que en el iPhone real ocupe toda la pantalla */
-        @media (max-width: 500px) {
-            .iphone-frame {
-                width: 100vw;
-                height: 100vh;
-                border: none;
-                border-radius: 0;
-                box-shadow: none;
-            }
-            .notch {
-                display: none; /* El iPhone real ya tiene su propio notch */
-            }
-            .status-bar {
-                padding-top: env(safe-area-inset-top);
-                height: calc(44px + env(safe-area-inset-top));
-            }
-        }
-
-        /* Barra de estado real */
+        /* Barra de estado real adaptada al notch del iPhone real */
         .status-bar {
             position: absolute;
             top: 0;
             width: 100%;
-            height: 44px;
+            height: calc(44px + env(safe-area-inset-top));
+            padding-top: env(safe-area-inset-top);
             z-index: 100;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 32px;
+            padding-left: 32px;
+            padding-right: 32px;
             font-size: 14px;
             font-weight: 600;
             color: #000;
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(8px);
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(4px);
         }
 
+        /* Notch eliminado para usar el del dispositivo */
         .notch {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 160px;
-            height: 30px;
-            background: #222;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            z-index: 110;
+            display: none;
         }
 
         .screenshot-container {
@@ -146,14 +114,38 @@
 
         .tiu-back-hotspot {
             position: absolute;
-            top: 44px;
+            top: calc(44px + env(safe-area-inset-top));
             left: 20px;
             width: 60px;
             height: 60px;
             z-index: 250;
+            cursor: pointer;
         }
 
- .live-date-overlay {
+        /* Reloj en vivo Lavanda - Restaurado */
+        .live-clock-overlay {
+            position: absolute;
+            top: 25.2%; 
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #dbd8fb; 
+            padding: 0px 20px;
+            border-radius: 12px;
+            font-size: 34px; 
+            font-weight: 500;
+            color: #000;
+            letter-spacing: 0.5px;
+            z-index: 210;
+            min-width: 195px;
+            height: 52px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        /* Fecha con fondo blanco extendido */
+        .live-date-overlay {
             position: absolute;
             top: 32.2%; 
             left: 50%;
@@ -162,7 +154,6 @@
             color: #555;
             z-index: 210;
             background-color: #f7f7fb; 
-            /* Aumentamos el padding inferior para que el blanco tape más área hacia abajo */
             padding: 2px 15px 12px 15px; 
             text-align: center;
             width: 240px;
@@ -170,7 +161,6 @@
             justify-content: center;
             align-items: center;
         }
-
 
         .home-indicator {
             position: absolute;
@@ -187,9 +177,8 @@
 </head>
 <body>
 
-    <div class="iphone-frame">
-        <div class="notch"></div>
-        
+    <div class="app-container">
+        <!-- Barra de estado del sistema real -->
         <div class="status-bar">
             <span id="systemTime">14:17</span>
             <div class="flex items-center space-x-1">
@@ -198,17 +187,23 @@
             </div>
         </div>
 
+        <!-- Pantalla Principal -->
         <div class="screenshot-container">
-            <img src="inicio.png" alt="Inicio" onerror="this.src='https://via.placeholder.com/375x812?text=Falta+inicio.png'">
+            <img src="inicio.png" alt="Inicio" onerror="this.src='https://via.placeholder.com/375x812?text=Error:+inicio.png+no+encontrado'">
             <div class="tiu-hotspot" onclick="openTiu()"></div>
         </div>
 
+        <!-- Sección TIU Virtual -->
         <div id="tiuView" class="tiu-screen">
             <div class="tiu-screenshot-container">
-                <img src="TIU.png" alt="TIU" onerror="this.src='https://via.placeholder.com/375x812?text=Falta+TIU.png'">
+                <img src="TIU.png" alt="TIU Virtual" onerror="this.src='https://via.placeholder.com/375x812?text=Error:+TIU.png+no+encontrado'">
             </div>
+            
             <div class="tiu-back-hotspot" onclick="closeTiu()"></div>
+
+            <!-- Reloj dinámico -->
             <div id="liveClock" class="live-clock-overlay">00:00:00</div>
+            <!-- Fecha dinámica -->
             <div id="liveDate" class="live-date-overlay">Cargando...</div>
         </div>
 
@@ -242,14 +237,16 @@
 
         function updateTiuClockDisplay() {
             const now = new Date();
-            document.getElementById('liveClock').innerText = 
-                String(now.getHours()).padStart(2, '0') + ":" + 
-                String(now.getMinutes()).padStart(2, '0') + ":" + 
-                String(now.getSeconds()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('liveClock').innerText = `${hours}:${minutes}:${seconds}`;
             
             const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
             const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sept', 'Oct', 'Nov', 'Dic'];
-            document.getElementById('liveDate').innerText = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+            
+            const dateStr = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+            document.getElementById('liveDate').innerText = dateStr;
         }
     </script>
 </body>
