@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- Configuración para WebApp (Modo App Real) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UPC App">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <title>UPC - App Prototipo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --iphone-width: 375px;
+            --iphone-height: 812px;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            /* Evita el scroll y rebote en iOS */
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
+        .iphone-frame {
+            width: var(--iphone-width);
+            height: var(--iphone-height);
+            background: #fff;
+            border-radius: 50px;
+            position: relative;
+            overflow: hidden;
+            border: 12px solid #222;
+            box-shadow: 0 0 0 4px #333, 0 30px 60px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+
+        /* Ajuste para que en el iPhone real ocupe toda la pantalla */
+        @media (max-width: 500px) {
+            .iphone-frame {
+                width: 100vw;
+                height: 100vh;
+                border: none;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            .notch {
+                display: none; /* El iPhone real ya tiene su propio notch */
+            }
+            .status-bar {
+                padding-top: env(safe-area-inset-top);
+                height: calc(44px + env(safe-area-inset-top));
+            }
+        }
+
+        /* Barra de estado real */
+        .status-bar {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 44px;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 32px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #000;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+        }
+
+        .notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 160px;
+            height: 30px;
+            background: #222;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            z-index: 110;
+        }
+
+        .screenshot-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .screenshot-container img, .tiu-screenshot-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .tiu-hotspot {
+            position: absolute;
+            top: 72.5%; 
+            left: 5%;
+            width: 90%;
+            height: 9%;
+            background: rgba(255, 0, 0, 0); 
+            cursor: pointer;
+            z-index: 50;
+            border-radius: 18px;
+        }
+
+        .tiu-screen {
+            position: absolute;
+            top: 0;
+            left: 100%;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            z-index: 200;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .tiu-screen.active {
+            transform: translateX(-100%);
+        }
+
+        .tiu-screenshot-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .tiu-back-hotspot {
+            position: absolute;
+            top: 44px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            z-index: 250;
+        }
+
+ .live-date-overlay {
+            position: absolute;
+            top: 32.2%; 
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 15.5px;
+            color: #555;
+            z-index: 210;
+            background-color: #f7f7fb; 
+            /* Aumentamos el padding inferior para que el blanco tape más área hacia abajo */
+            padding: 2px 15px 12px 15px; 
+            text-align: center;
+            width: 240px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 130px;
+            height: 5px;
+            background: #000;
+            border-radius: 10px;
+            z-index: 300;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="iphone-frame">
+        <div class="notch"></div>
+        
+        <div class="status-bar">
+            <span id="systemTime">14:17</span>
+            <div class="flex items-center space-x-1">
+                <span class="text-[10px]">📶</span>
+                <span class="text-[10px]">🔋</span>
+            </div>
+        </div>
+
+        <div class="screenshot-container">
+            <img src="inicio.png" alt="Inicio" onerror="this.src='https://via.placeholder.com/375x812?text=Falta+inicio.png'">
+            <div class="tiu-hotspot" onclick="openTiu()"></div>
+        </div>
+
+        <div id="tiuView" class="tiu-screen">
+            <div class="tiu-screenshot-container">
+                <img src="TIU.png" alt="TIU" onerror="this.src='https://via.placeholder.com/375x812?text=Falta+TIU.png'">
+            </div>
+            <div class="tiu-back-hotspot" onclick="closeTiu()"></div>
+            <div id="liveClock" class="live-clock-overlay">00:00:00</div>
+            <div id="liveDate" class="live-date-overlay">Cargando...</div>
+        </div>
+
+        <div class="home-indicator"></div>
+    </div>
+
+    <script>
+        let tiuClockInterval;
+
+        function openTiu() {
+            document.getElementById('tiuView').classList.add('active');
+            startTiuClock();
+        }
+
+        function closeTiu() {
+            document.getElementById('tiuView').classList.remove('active');
+            clearInterval(tiuClockInterval);
+        }
+
+        function updateSystemTime() {
+            const now = new Date();
+            document.getElementById('systemTime').innerText = now.getHours() + ":" + String(now.getMinutes()).padStart(2, '0');
+        }
+        setInterval(updateSystemTime, 1000);
+        updateSystemTime();
+
+        function startTiuClock() {
+            updateTiuClockDisplay();
+            tiuClockInterval = setInterval(updateTiuClockDisplay, 1000);
+        }
+
+        function updateTiuClockDisplay() {
+            const now = new Date();
+            document.getElementById('liveClock').innerText = 
+                String(now.getHours()).padStart(2, '0') + ":" + 
+                String(now.getMinutes()).padStart(2, '0') + ":" + 
+                String(now.getSeconds()).padStart(2, '0');
+            
+            const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sept', 'Oct', 'Nov', 'Dic'];
+            document.getElementById('liveDate').innerText = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+        }
+    </script>
+</body>
+</html>
